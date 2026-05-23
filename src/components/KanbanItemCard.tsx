@@ -2,17 +2,11 @@ import type { DragEvent } from 'react';
 import type { Item } from '../data/types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPencil } from '@fortawesome/free-solid-svg-icons';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import KanbanItemPriority from './KanbanItemPriority';
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import KanbanSheet from './KanbanSheet';
 import {
   AlertDialog,
@@ -23,8 +17,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
+} from '@/components/ui/alert-dialog';
 
 interface KanbanItemProps {
   item: Item;
@@ -32,7 +25,6 @@ interface KanbanItemProps {
 }
 
 function KanbanItem({ item, fetchItems }: KanbanItemProps) {
-
   const maxLengthTitle: number = 24;
   const maxLengthDescription: number = 70;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -48,9 +40,12 @@ function KanbanItem({ item, fetchItems }: KanbanItemProps) {
 
   const handleConfirmDelete = async () => {
     try {
-      const response = await fetch(`https://hb-kanban-backend.hb-user.workers.dev/items/${item.id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `https://hb-kanban-backend.hb-user.workers.dev/items/${item.id}`,
+        {
+          method: 'DELETE',
+        },
+      );
 
       if (!response.ok) {
         throw new Error(`Error deleting item: ${response.statusText}`);
@@ -59,7 +54,7 @@ function KanbanItem({ item, fetchItems }: KanbanItemProps) {
       fetchItems();
       setShowDeleteDialog(false);
     } catch (error) {
-      console.error("Failed to delete item:", error);
+      console.error('Failed to delete item:', error);
       // Optionally show an error message to the user
       setShowDeleteDialog(false);
     }
@@ -71,28 +66,39 @@ function KanbanItem({ item, fetchItems }: KanbanItemProps) {
 
   return (
     <Card className="mb-2" draggable="true" onDragStart={handleDragStart}>
-       <CardHeader className="flex justify-between items-center">
-        <CardTitle>{item.id} - {item.title.length > maxLengthTitle ? item.title.substring(0, maxLengthTitle - 3).concat("...") : item.title}</CardTitle>
+      <CardHeader className="flex justify-between items-center">
+        <CardTitle>
+          {item.id} -{' '}
+          {item.title.length > maxLengthTitle
+            ? item.title.substring(0, maxLengthTitle - 3).concat('...')
+            : item.title}
+        </CardTitle>
         <div>
-          <FontAwesomeIcon icon={faPencil} onClick={handleEditClick} className="cursor-pointer mr-4" />
+          <FontAwesomeIcon
+            icon={faPencil}
+            onClick={handleEditClick}
+            className="cursor-pointer mr-4"
+          />
           <FontAwesomeIcon icon={faTrash} onClick={handleDeleteClick} className="cursor-pointer" />
         </div>
       </CardHeader>
       <CardContent className="grid gap-4">
-          <div className=" flex items-center space-x-4">
-            <div className="flex-1 space-y-1">
-              <p className="text-sm ">
-                {item.description.length > maxLengthDescription ? item.description.substring(0, maxLengthDescription-3).concat("...") : item.description}
-              </p>
-            </div>
-            <Avatar>
-              <AvatarImage />
-              <AvatarFallback>{item.assigned_user.substring(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
+        <div className=" flex items-center space-x-4">
+          <div className="flex-1 space-y-1">
+            <p className="text-sm ">
+              {item.description.length > maxLengthDescription
+                ? item.description.substring(0, maxLengthDescription - 3).concat('...')
+                : item.description}
+            </p>
           </div>
+          <Avatar>
+            <AvatarImage />
+            <AvatarFallback>{item.assigned_user.substring(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
+        </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <KanbanItemPriority priority={item.priority}/>
+        <KanbanItemPriority priority={item.priority} />
         <Badge>{item.estimate}</Badge>
       </CardFooter>
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
