@@ -1,3 +1,4 @@
+import type { DragEvent } from 'react';
 import type { Item } from '../data/types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPencil } from '@fortawesome/free-solid-svg-icons';
@@ -64,7 +65,7 @@ function KanbanItem({ item, fetchItems }: KanbanItemProps) {
     }
   };
 
-  const handleDragStart = (e: React.DragEvent) => {
+  const handleDragStart = (e: DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData('itemId', item.id.toString());
   };
 
