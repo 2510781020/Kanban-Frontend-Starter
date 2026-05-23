@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type ChangeEvent } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import type { Item } from '../data/types';
 
 interface ItemData {
   title: string;
-  description?: string;
+  description: string;
   type: "User Story" | "Defect" | "Task";
   estimate: number;
   state: "Open" | "In Progress" | "In Validation" | "Done";
@@ -39,9 +39,10 @@ function KanbanItem({ item, onSave, onCancel }: KanbanItemProps) {
   useEffect(() => {
     if (item) {
       // Populate form fields if item prop is provided (editing)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setItemData({
         title: item.title,
-        description: item.description,
+        description: item.description ?? '',
         type: item.type,
         estimate: item.estimate,
         state: item.state,
@@ -63,12 +64,12 @@ function KanbanItem({ item, onSave, onCancel }: KanbanItemProps) {
   }, [item]);
 
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setItemData({ ...itemData, [id]: value });
   };
 
-  const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNumberInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setItemData({ ...itemData, [id]: parseInt(value, 10) || 0 });
   };
@@ -135,9 +136,10 @@ function KanbanItem({ item, onSave, onCancel }: KanbanItemProps) {
       toast.success(`Item ${item ? 'updated' : 'created'} successfully!`);
       onSave(); // Notify parent component to refresh/close form
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       console.error('Error saving item:', error);
-      toast.error(`Failed to save item: ${error.message}`);
+      toast.error(`Failed to save item: ${message}`);
     }
   };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type DragEvent } from 'react';
 import type { Item } from '../data/types';
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
@@ -12,6 +12,8 @@ function KanbanBoard() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchItems = async () => {
+    setError(null);
+
     try {
       const response = await fetch('https://hb-kanban-backend.hb-user.workers.dev/items');
       if (!response.ok) {
@@ -19,16 +21,17 @@ function KanbanBoard() {
       }
       const data: Item[] = await response.json();
       setItems(data);
-    } catch (err: any) {
-      setError(err.message);
+      toast.success("The items have been loaded successfully");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
-      toast("The items have been loaded successfully");
     }
   };
 
   useEffect(() => {
-    fetchItems();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchItems();
   }, []);
 
   if (loading) {
@@ -93,7 +96,7 @@ function KanbanBoard() {
     </div>
   );
 
-  async function handleDrop(e: React.DragEvent, newState: Item['state']) {
+  async function handleDrop(e: DragEvent<HTMLDivElement>, newState: Item['state']) {
     const itemId = e.dataTransfer.getData('itemId');
     if (!itemId) return;
 
@@ -123,9 +126,10 @@ function KanbanBoard() {
       toast.success(`Item ${itemId} moved to ${newState}`);
       fetchItems(); // Reload items to ensure consistency
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       console.error('Error updating item state:', error);
-      toast.error(`Failed to move item ${itemId}: ${error.message}`);
+      toast.error(`Failed to move item ${itemId}: ${message}`);
       // Revert state on error
       setItems(items.map(item =>
         item.id === parseInt(itemId, 10) ? { ...item, state: originalState } : item
